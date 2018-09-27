@@ -9,7 +9,7 @@ updateimgs:
 	sudo docker pull docker-local.artifactory.internetbrands.com/ibex-db:staging
 	sudo docker pull docker-local.artifactory.internetbrands.com/ibex-log-db:staging
 	sudo docker pull docker-local.artifactory.internetbrands.com/ingestor/liquibase:staging
-    - for /f "tokens=*" %%i in ('sudo docker images -f "dangling=true" -q') do (sudo docker rmi -f %%i)
+    - sudo docker images -f "dangling=true" -q' | xargs sudo docker rmi -f
 	
 up:	
 	sudo docker-compose -f common-services.yml up -d
