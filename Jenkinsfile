@@ -17,6 +17,8 @@ pipeline {
         stage('Run services') {
             steps {
                 sh 'make up'
+                sh 'sleep 1m'
+                sh 'make prepdb'
             }
         }
     }

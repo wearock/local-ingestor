@@ -1,11 +1,15 @@
 persist_db:
   image: docker-local.artifactory.internetbrands.com/ibex-db:staging
   container_name: persist_db
+  volumes:
+    - ./settings/db:/mnt/scripts
   ports:
     - 5433:5432
   
 log_db:
   image: docker-local.artifactory.internetbrands.com/ibex-log-db:staging
   container_name: log_db
+  volumes:
+    - ./settings/db:/mnt/scripts
   ports:
     - 5434:5432
