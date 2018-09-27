@@ -1,3 +1,66 @@
+facade:
+  image: nginx
+  container_name: ibex-ingestor
+  restart: always
+  volumes:
+    - ./settings/facade:/etc/nginx/conf.d
+    - /var/shared/ingestor/logs/facade:/var/log/nginx
+  links:
+    - authnode
+    - uploadnode
+  ports:
+    - "9999:9999"
+   
+authnode:
+  image: docker-local.artifactory.internetbrands.com/ingestor/authws:staging
+  container_name: authnode
+  restart: always
+  volumes:
+    - ./settings/authws:/app/ingestor/resources
+    - /var/shared/ingestor/logs:/var/log/ingestor
+  links:
+    - persist_db
+    - log_db
+    - memcached
+  ports:
+    - "8090:8080"
+  
+uploadnode:
+  image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
+  container_name: uploadnode
+  restart: always
+  environment:
+    - SESAME_SYSTEM=/usr/local/ingestor/system
+    - SESAME_COMMON=/usr/local/ingestor/common
+    - SESAME_LOCAL_STORE=/usr/local/ingestor/localstore
+  volumes:
+    - ./settings/uploadws:/app/ingestor/resources
+    - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
+    - /var/shared/ingestor/logs:/var/log/ingestor
+  links:
+    - persist_db
+    - log_db
+    - authnode
+    - kafka
+  ports:
+    - "8091:8080"
+  
+supporttool:
+  image: docker-local.artifactory.internetbrands.com/ingestor/logs:staging
+  container_name: support_tooling
+  restart: always
+  volumes:
+    - ./settings/logs:/app/ingestor/resources
+    - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
+    - /var/shared/ingestor/logs:/var/log/ingestor
+  working_dir: /app/ingestor
+  command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-logs.war --headless --contextPath /logs
+  links:
+    - persist_db
+    - log_db
+  ports:
+    - "8095:8080"
+  
 security_manager:
   image: docker-local.artifactory.internetbrands.com/security-manager:staging
   container_name: security_manager
