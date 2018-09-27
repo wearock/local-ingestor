@@ -8,6 +8,7 @@ pipeline {
             steps {
                 sh 'chmod a+x ./purgeStorage.sh'
                 sh 'chmod a+x ./restart.sh'
+                sh 'chmod a+x ./register.sh'
             }
         }
         stage('Clean up') {
@@ -36,6 +37,11 @@ pipeline {
         stage('Reboot services') {
             steps {
                 sh './restart.sh'
+            }
+        }
+        stage('Register clients') {
+            steps {
+                sh './register.sh'
             }
         }
     }
