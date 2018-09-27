@@ -21,12 +21,20 @@ pipeline {
                 sh 'make updateimgs'
             }
         }
-        stage('Run services') {
+        stage('Initial service start up') {
             steps {
                 sh 'make up'
                 sh 'sleep 1m'
+            }
+        }
+        stage('Prepare database') {
+            steps {
                 sh 'chmod a+x ./settings/db/grantaccess.sh'
                 sh 'make prepdb'
+            }
+        }
+        stage('Reboot services') {
+            steps {
                 sh './restart.sh'
             }
         }
