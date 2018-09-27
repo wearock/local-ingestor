@@ -1,3 +1,47 @@
+security_manager:
+  image: docker-local.artifactory.internetbrands.com/security-manager:staging
+  container_name: security_manager
+  environment:
+    - BACKEND_SERVICE_HOST=ibex-api
+    - BACKEND_SERVICE_PORT=8080
+    - IBC_REALM_CONFIG_FILE=/mnt/config/stg-ibcv2-config.json
+    - AUTH_TOKENS_FILE=/mnt/config/tokens.json
+    - SKIP_AUTHORIZATION=true
+    - LOG_TO_FILE=true
+    - LOG_TO_CONSOLE=false
+    - REQUEST_LOG_FILE=/mnt/log/proxy-request.log
+    - PROXY_LOG_FILE=/mnt/log/proxy.log
+  ports:
+    - "10001:3000"
+  volumes:
+    - ./settings/api:/mnt/config
+    - /var/shared/ingestor/logs/ibex-api:/mnt/log
+  links:
+    - ibex-api
+  command: ./node_modules/forever/bin/forever src/index.js
+  
+ibex-api:
+  image: docker-local.artifactory.internetbrands.com/ibex-api:staging
+  container_name: ibex_api
+  environment:
+    - DEBUG=true
+    - DB_URL=jdbc:postgresql://persist_db/ibex
+    - DB_USERNAME=postgres
+    - DB_PASSWORD=
+    - KAFKA_SERVERS=kafka:9092
+    - DB_DRIVER=org.postgresql.Driver
+    - DB_INITIAL_SIZE=3
+    - DB_MAX_TOTAL=8
+    - DB_MAX_WAIT_MILLIS=5000   
+    - LOG_FILE=/mnt/log/api.log
+  links:
+    - persist_db
+    - kafka
+  volumes:
+    - /var/shared/ingestor/logs/ibex-api:/mnt/log
+  working_dir: /app
+  command: /app/bin/start.sh
+  
 persist_db:
   image: docker-local.artifactory.internetbrands.com/ibex-db:staging
   container_name: persist_db
@@ -13,3 +57,21 @@ log_db:
     - ./settings/db:/mnt/scripts
   ports:
     - 5434:5432
+
+zookeeper:
+  image: confluent/zookeeper
+  restart: always
+  environment:
+   zk_id: "1"
+
+kafka:
+  image: confluent/kafka
+  restart: always
+  environment:
+    - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+  links:
+    - zookeeper
+
+memcached:
+  image: memcached
+  restart: always

@@ -4,9 +4,16 @@ pipeline {
         label 'docker'
     }
     stages {
+        stage('Script Permission') {
+            steps {
+                sh 'chmod a+x ./purgeStorage.sh'
+                sh 'chmod a+x ./restart.sh'
+            }
+        }
         stage('Clean up') {
             steps {
                 sh 'make clean'
+                sh './purgeStorage.sh'
             }
         }
         stage('Upgrade images') {
@@ -20,6 +27,7 @@ pipeline {
                 sh 'sleep 1m'
                 sh 'chmod a+x ./settings/db/grantaccess.sh'
                 sh 'make prepdb'
+                sh './restart.sh'
             }
         }
     }

@@ -1,0 +1,12 @@
+{
+  "realm": "demandforce",
+  "bearer-only": true,
+  "auth-server-url": "https://stg-ibcv2.internetbrands.com/auth",   
+  "ssl-required": "external",
+  "resource": "ibex-api",
+  "credentials": {
+    "secret": "01ac4649-e572-4b67-a16e-a9a293366de2"
+  },
+  "confidential-port": 0,
+  "policy-enforcer": {}
+}
