@@ -18,6 +18,7 @@ pipeline {
             steps {
                 sh 'make up'
                 sh 'sleep 1m'
+                sh 'chmod a+x ./settings/db/grantaccess.sh'
                 sh 'make prepdb'
             }
         }
