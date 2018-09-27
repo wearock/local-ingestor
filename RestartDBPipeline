@@ -1,0 +1,36 @@
+#!groovy
+pipeline {
+    agent {
+        label 'docker'
+    }
+    stages {
+        stage('Script Permission') {
+            steps {
+                sh 'chmod a+x ./restart.sh'
+                sh 'chmod a+x ./register.sh'
+            }
+        }
+        stage('Restart DB') {
+            steps {
+                sh 'sudo docker restart persist_db'
+                sh 'sudo docker restart log_db'
+                sh 'sleep 1m'
+            }
+        }
+        stage('Prepare database') {
+            steps {
+                sh 'make prepdb'
+            }
+        }
+        stage('Reboot services') {
+            steps {
+                sh './restart.sh'
+            }
+        }
+        stage('Register clients') {
+            steps {
+                sh './register.sh'
+            }
+        }
+    }
+}
