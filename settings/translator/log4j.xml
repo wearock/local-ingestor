@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+     <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <param name="Threshold" value="INFO" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p (%F:%L) %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="ERRORFILE" class="org.apache.log4j.RollingFileAppender">
+        <param name="Threshold" value="ERROR" />
+        <param name="File" value="/usr/local/ingestor/log/translator_error.log" />
+        <param name="MaxFileSize" value="100MB"/>
+        <param name="MaxBackupIndex" value="5"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%t] %-5p (%F:%L) %c{1} - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="INFOFILE" class="org.apache.log4j.RollingFileAppender">
+        <param name="Threshold" value="INFO" />
+        <param name="File" value="/usr/local/ingestor/log/translator_info.log" />
+        <param name="MaxFileSize" value="500MB"/>
+        <param name="MaxBackupIndex" value="5"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%t] %-5p (%F:%L) %c{1} - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="DEBUGFILE" class="org.apache.log4j.RollingFileAppender">
+        <param name="Threshold" value="DEBUG" />
+        <param name="File" value="/usr/local/ingestor/log/translator_debug.log" />
+        <param name="MaxFileSize" value="500MB"/>
+        <param name="MaxBackupIndex" value="5"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%t] %-5p (%F:%L) %c{1} - %m%n" />
+        </layout>
+    </appender>
+
+    <!-- sometimes we want to log raw XML output -->
+    <appender name="RAWFILE" class="org.apache.log4j.RollingFileAppender">
+        <param name="Threshold" value="DEBUG" />
+        <param name="File" value="/usr/local/ingestor/log/translator_raw.log" />
+        <param name="MaxFileSize" value="500MB"/>
+        <param name="MaxBackupIndex" value="5"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n" />
+        </layout>
+    </appender>
+
+    <!-- squelch some noisy components -->
+    <logger name="org.apache.http">
+        <level value="INFO" />
+    </logger>
+    <!-- CXF outputs full SOAP payloads as INFO! -->
+    <logger name="org.apache.cxf">
+        <level value="WARNING" />
+    </logger>
+    <logger name="org.apache.axis">
+        <level value="WARNING" />
+    </logger>
+    <logger name="org.apache.xbean">
+        <level value="INFO" />
+    </logger>
+    <logger name="org.springframework">
+        <level value="INFO" />
+    </logger>
+    <logger name="com.intuit">
+        <level value="INFO" />
+    </logger>
+    <logger name="oath.signpost">
+        <level value="INFO" />
+    </logger>
+
+    <root>
+        <appender-ref ref="ERRORFILE" />
+        <appender-ref ref="INFOFILE" />
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+</log4j:configuration>

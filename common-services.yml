@@ -53,13 +53,36 @@ supporttool:
     - ./settings/logs:/app/ingestor/resources
     - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
     - /var/shared/ingestor/logs:/var/log/ingestor
-  working_dir: /app/ingestor
-  command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-logs.war --headless --contextPath /logs
   links:
     - persist_db
     - log_db
   ports:
     - "8095:8080"
+
+translator:
+  image: docker-local.artifactory.internetbrands.com/udbf_translator:staging
+  container_name: translator
+  environment:
+    - DATABASE_DRIVER=org.postgresql.Driver
+    - DATABASE_URL=jdbc:postgresql://persist_db:5432/ibex?currentSchema=ibex&user=postgres
+    - LOG_DATABASE_URL=jdbc:postgresql://log_db:5432/ibex_logs?currentSchema=ibex_logs&user=postgres
+    - DEST_URL=file:///tmp/translated/
+    - KAFKA_SERVERS=kafka:9092
+    - KAFKA_AUTO_COMMIT_INTERVAL_MS=3600000
+    - TRANSLATE_TOPIC=translator
+    - MAX_TASKS_COUNT=8
+    - CORE_JAVA_SETTINGS=
+    - TMP_OUTPUT_DIR=/tmp/translator/
+  volumes:
+    - /var/shared/ingestor/storage/sesame/common:/usr/local/ingestor/common
+    - /var/shared/ingestor/storage/translated:/tmp/translator
+    - /var/shared/ingestor/logs/translator:/usr/local/ingestor/log
+    - ./settings/translator:/mnt/config
+  links:
+    - kafka
+    - zookeeper
+    - persist_db
+    - log_db
   
 security_manager:
   image: docker-local.artifactory.internetbrands.com/security-manager:staging
@@ -134,6 +157,15 @@ kafka:
     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
   links:
     - zookeeper
+  
+kafka_proxy:
+  image: confluent/rest-proxy
+  restart: always
+  links:
+    - zookeeper
+    - kafka
+  environment:
+    - RP_ZOOKEEPER_CONNECT=zookeeper:2181
 
 memcached:
   image: memcached
