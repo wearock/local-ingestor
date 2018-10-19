@@ -58,6 +58,7 @@ supporttool:
   links:
     - persist_db
     - log_db
+    - kafka
   ports:
     - "8095:8080"
   working_dir: /app/ingestor
