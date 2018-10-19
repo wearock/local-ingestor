@@ -44,6 +44,8 @@ uploadnode:
     - kafka
   ports:
     - "8091:8080"
+  working_dir: /app/ingestor
+  command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
   
 supporttool:
   image: docker-local.artifactory.internetbrands.com/ingestor/logs:staging
@@ -58,6 +60,8 @@ supporttool:
     - log_db
   ports:
     - "8095:8080"
+  working_dir: /app/ingestor
+  command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-logs.war --headless --contextPath /logs
 
 translator:
   image: docker-local.artifactory.internetbrands.com/udbf_translator:staging
