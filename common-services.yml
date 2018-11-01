@@ -7,7 +7,7 @@ facade:
     - /var/shared/ingestor/logs/facade:/var/log/nginx
   links:
     - authnode
-    - uploadnode
+    - uploadws_uploader
   ports:
     - "9999:9999"
    
@@ -25,16 +25,16 @@ authnode:
   ports:
     - "8090:8080"
   
-uploadnode:
+uploadws_uploader:
   image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
-  container_name: uploadnode
+  container_name: uploadws_uploader
   restart: always
   environment:
     - SESAME_SYSTEM=/usr/local/ingestor/system
     - SESAME_COMMON=/usr/local/ingestor/common
     - SESAME_LOCAL_STORE=/usr/local/ingestor/localstore
   volumes:
-    - ./settings/uploadws:/app/ingestor/resources
+    - ./settings/uploader:/app/ingestor/resources
     - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
     - /var/shared/ingestor/logs:/var/log/ingestor
   links:
@@ -44,6 +44,28 @@ uploadnode:
     - kafka
   ports:
     - "8091:8080"
+  working_dir: /app/ingestor
+  command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
+  
+uploadws_processor:
+  image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
+  container_name: uploadws_processor
+  restart: always
+  environment:
+    - SESAME_SYSTEM=/usr/local/ingestor/system
+    - SESAME_COMMON=/usr/local/ingestor/common
+    - SESAME_LOCAL_STORE=/usr/local/ingestor/localstore
+  volumes:
+    - ./settings/processor:/app/ingestor/resources
+    - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
+    - /var/shared/ingestor/logs:/var/log/ingestor
+  links:
+    - persist_db
+    - log_db
+    - authnode
+    - kafka
+  ports:
+    - "8092:8080"
   working_dir: /app/ingestor
   command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
   

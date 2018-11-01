@@ -1,0 +1,27 @@
+<configuration>
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>/var/log/ingestor/uploadws_processor.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <fileNamePattern>uploadws_processor.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+      <!-- keep 30 days' worth of history -->
+      <maxHistory>30</maxHistory>
+
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender> 
+
+  <root level="INFO">
+    <appender-ref ref="FILE" />
+  </root>
+
+  <!--<logger name="org.hibernate.SQL" level="debug"/>-->
+  <!--<logger name="org.hibernate.type" level="trace"/>-->
+  <logger name="org.hibernate" level="info"/>
+  <logger name="com.jolbox" level="info" />
+
+</configuration>
