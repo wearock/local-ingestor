@@ -5,6 +5,7 @@ facade:
   volumes:
     - ./settings/facade:/etc/nginx/conf.d
     - /var/shared/ingestor/logs/facade:/var/log/nginx
+    - /usr/local/cert:/mnt/cert
   links:
     - authnode
     - uploadws_uploader
