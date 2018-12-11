@@ -11,6 +11,7 @@ facade:
     - uploadws_uploader
   ports:
     - "443:443"
+    - "9999:9999"
    
 authnode:
   image: docker-local.artifactory.internetbrands.com/ingestor/authws:staging
