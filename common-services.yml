@@ -9,6 +9,7 @@ facade:
   links:
     - authnode
     - uploadws_uploader
+    - supporttool
   ports:
     - "443:443"
     - "9999:9999"
@@ -83,8 +84,6 @@ supporttool:
     - persist_db
     - log_db
     - kafka
-  ports:
-    - "8095:8080"
   working_dir: /app/ingestor
   command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-logs.war --headless --contextPath /logs
 
