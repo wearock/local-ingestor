@@ -94,7 +94,7 @@ translator:
     - DATABASE_DRIVER=org.postgresql.Driver
     - DATABASE_URL=jdbc:postgresql://persist_db:5432/ibex?currentSchema=ibex&user=postgres
     - LOG_DATABASE_URL=jdbc:postgresql://log_db:5432/ibex_logs?currentSchema=ibex_logs&user=postgres
-    - DEST_URL=file:///tmp/translated/
+    - DEST_URL=http://stg-df-dkr1.internetbrands.com:9001/upload/1.0/xml.jsp
     - KAFKA_SERVERS=kafka:9092
     - KAFKA_AUTO_COMMIT_INTERVAL_MS=3600000
     - TRANSLATE_TOPIC=translator
