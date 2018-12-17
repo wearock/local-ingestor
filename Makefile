@@ -10,6 +10,7 @@ updateimgs:
 	sudo docker pull docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
 	sudo docker pull docker-local.artifactory.internetbrands.com/ingestor/logs:staging
 	sudo docker pull docker-local.artifactory.internetbrands.com/udbf_translator:staging
+	sudo docker pull docker-local.artifactory.internetbrands.com/ibconnect:staging
 	sudo docker pull docker-local.artifactory.internetbrands.com/security-manager:staging
 	sudo docker pull docker-local.artifactory.internetbrands.com/ibex-api:staging
 	sudo docker pull docker-local.artifactory.internetbrands.com/ibex-db:staging

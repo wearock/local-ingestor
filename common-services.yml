@@ -22,6 +22,7 @@ authnode:
     - ./settings/authws:/app/ingestor/resources
     - /var/shared/ingestor/logs:/var/log/ingestor
   links:
+    - ibconnect
     - persist_db
     - log_db
     - memcached
@@ -41,6 +42,7 @@ uploadws_uploader:
     - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
     - /var/shared/ingestor/logs:/var/log/ingestor
   links:
+    - ibconnect
     - persist_db
     - log_db
     - authnode
@@ -63,6 +65,7 @@ uploadws_processor:
     - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
     - /var/shared/ingestor/logs:/var/log/ingestor
   links:
+    - ibconnect
     - persist_db
     - log_db
     - authnode
@@ -81,12 +84,33 @@ supporttool:
     - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
     - /var/shared/ingestor/logs:/var/log/ingestor
   links:
+    - ibconnect
     - persist_db
     - log_db
     - kafka
   working_dir: /app/ingestor
   command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-logs.war --headless --contextPath /logs
 
+ibconnect:
+  image: docker-local.artifactory.internetbrands.com/ibconnect:staging
+  container_name: ibconnect
+  environment:
+    - NODE_ENV=staging
+    - ACCESS_CONTROL_ALLOW_ORIGIN=*
+    - JBOSS_HOME=/app
+    - KEYCLOAK_LOGLEVEL=INFO
+    - POSTGRESQL_USER=ibconnect_appuser_user
+    - POSTGRESQL_PASSWORD=L3m0n1Imecru5h
+    - POSTGRESQL_DATABASE=platformsvcsdb
+    - POSTGRESQL_HOST=stg-platformsvcspgdb1.internetbrands.com
+    - POSTGRESQL_SCHEMA=ibconnect
+  volumes:
+    - ./settings/ibconnect:/mnt/config
+    - /var/shared/ingestor/storage/ibconnect:/mnt/data
+    - /var/shared/ingestor/logs/ibconnect:/mnt/log
+  working_dir: /app
+  command: /app/keycloak.sh
+  
 translator:
   image: docker-local.artifactory.internetbrands.com/udbf_translator:staging
   container_name: translator
