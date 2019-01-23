@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo -n "Delete current storage"
-sudo rm -f -r /var/shared/ingestor
+rm -f -r /var/shared/ingestor
 
 echo -n "Recreate root folder"
 mkdir /var/shared/ingestor
