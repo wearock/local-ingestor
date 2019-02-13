@@ -1,0 +1,8 @@
+{
+  "authenticate":[
+    "/business*"
+  ],
+  "authorize" : [
+    "/business/:businessId/*"
+  ]
+}

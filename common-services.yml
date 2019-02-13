@@ -48,7 +48,7 @@ uploadws_uploader:
   ports:
     - "8091:8080"
   working_dir: /app/ingestor
-  command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
+  command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
   
 uploadws_processor:
   image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
@@ -70,7 +70,7 @@ uploadws_processor:
   ports:
     - "8092:8080"
   working_dir: /app/ingestor
-  command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
+  command: java -Xms1g -Xmx6g -XX:+UseG1GC -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
   
 supporttool:
   image: docker-local.artifactory.internetbrands.com/ingestor/logs:staging
@@ -120,7 +120,9 @@ security_manager:
     - BACKEND_SERVICE_PORT=8080
     - IBC_REALM_CONFIG_FILE=/mnt/config/stg-ibcv2-config.json
     - AUTH_TOKENS_FILE=/mnt/config/tokens.json
-    - SKIP_AUTHORIZATION=true
+    - AUTH_CONFIG_FILE=/mnt/config/auth-config.json
+    - SKIP_AUTHENTICATION=false
+    - SKIP_AUTHORIZATION=false
     - LOG_TO_FILE=true
     - LOG_TO_CONSOLE=false
     - REQUEST_LOG_FILE=/mnt/log/proxy-request.log
@@ -147,7 +149,7 @@ ibex-api:
     - DB_INITIAL_SIZE=3
     - DB_MAX_TOTAL=8
     - DB_MAX_WAIT_MILLIS=5000   
-    - LOG_FILE=/mnt/log/api.log
+    - LOG_DIR=/mnt/log
   links:
     - persist_db
     - kafka
