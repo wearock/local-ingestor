@@ -3,6 +3,7 @@
     "/business*"
   ],
   "authorize" : [
+    "/business(/){0,}$",
     "/business/:businessId/*"
   ]
 }

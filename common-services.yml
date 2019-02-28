@@ -141,7 +141,7 @@ ibex-api:
   container_name: ibex_api
   environment:
     - DEBUG=true
-    - DB_URL=jdbc:postgresql://persist_db/ibex
+    - DB_URL=jdbc:postgresql://persist_db/ibex?currentSchema=ibex
     - DB_USERNAME=postgres
     - DB_PASSWORD=
     - KAFKA_SERVERS=kafka:9092

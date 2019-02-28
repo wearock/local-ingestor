@@ -9,7 +9,7 @@
       <maxHistory>30</maxHistory>
     </rollingPolicy>
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+      <pattern>%d{MM-dd-yyyy HH:mm:ss.SSS} [%thread:DB=%X{currentMember}] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender> 
 
@@ -18,8 +18,8 @@
   </root>
 
   <logger name="com.jolbox" level="info"/>
-  <logger name="org.hibernate" level="info"/>
-  <logger name="org.hibernate.stat" level="debug"/>
+  <logger name="org.hibernate" level="warn"/>
+  <logger name="org.hibernate.stat.internal.ConcurrentStatisticsImpl" level="debug"/>
   <!--<logger name="org.hibernate.SQL" level="debug"/>-->
   <!--<logger name="org.hibernate.type" level="trace"/>-->
   <logger name="org.eclipse.jetty.io.nio" level="error"/>
