@@ -13,7 +13,7 @@ facade:
   ports:
     - "443:443"
     - "9999:9999"
-   
+
 authnode:
   image: docker-local.artifactory.internetbrands.com/ingestor/authws:staging
   container_name: authnode
@@ -27,7 +27,7 @@ authnode:
     - memcached
   ports:
     - "8090:8080"
-  
+
 uploadws_uploader:
   image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
   container_name: uploadws_uploader
@@ -49,7 +49,7 @@ uploadws_uploader:
     - "8091:8080"
   working_dir: /app/ingestor
   command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
-  
+
 uploadws_processor:
   image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
   container_name: uploadws_processor
@@ -71,7 +71,7 @@ uploadws_processor:
     - "8092:8080"
   working_dir: /app/ingestor
   command: java -Xms1g -Xmx6g -XX:+UseG1GC -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
-  
+
 supporttool:
   image: docker-local.artifactory.internetbrands.com/ingestor/logs:staging
   container_name: support_tooling
@@ -90,6 +90,7 @@ supporttool:
 translator:
   image: docker-local.artifactory.internetbrands.com/udbf_translator:staging
   container_name: translator
+  restart: always
   environment:
     - DATABASE_DRIVER=org.postgresql.Driver
     - DATABASE_URL=jdbc:postgresql://persist_db:5432/ibex?currentSchema=ibex&user=postgres
@@ -111,7 +112,7 @@ translator:
     - zookeeper
     - persist_db
     - log_db
-  
+
 security_manager:
   image: docker-local.artifactory.internetbrands.com/security-manager:staging
   container_name: security_manager
@@ -135,7 +136,7 @@ security_manager:
   links:
     - ibex-api
   command: ./node_modules/forever/bin/forever src/index.js
-  
+
 ibex-api:
   image: docker-local.artifactory.internetbrands.com/ibex-api:staging
   container_name: ibex_api
@@ -148,7 +149,7 @@ ibex-api:
     - DB_DRIVER=org.postgresql.Driver
     - DB_INITIAL_SIZE=3
     - DB_MAX_TOTAL=8
-    - DB_MAX_WAIT_MILLIS=5000   
+    - DB_MAX_WAIT_MILLIS=5000
     - LOG_DIR=/mnt/log
   links:
     - persist_db
@@ -157,7 +158,7 @@ ibex-api:
     - /var/shared/ingestor/logs/ibex-api:/mnt/log
   working_dir: /app
   command: /app/bin/start.sh
-  
+
 persist_db:
   image: docker-local.artifactory.internetbrands.com/ibex-db:staging
   container_name: persist_db
@@ -165,7 +166,7 @@ persist_db:
     - ./settings/db:/mnt/scripts
   ports:
     - 5433:5432
-  
+
 log_db:
   image: docker-local.artifactory.internetbrands.com/ibex-log-db:staging
   container_name: log_db
@@ -187,7 +188,7 @@ kafka:
     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
   links:
     - zookeeper
-  
+
 kafka_proxy:
   image: confluent/rest-proxy
   restart: always
@@ -200,3 +201,33 @@ kafka_proxy:
 memcached:
   image: memcached
   restart: always
+
+elasticsearch:
+  image: elasticsearch:6.6.2
+  container_name: ingestor_es
+  environment:
+    - ES_JAVA_OPTS=-Xmx256m -Xms256m
+  volumes:
+    - ./settings/es/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+
+logstash:
+  image: logstash:6.6.2
+  container_name: ingestor_logstash
+  environment:
+    - ES_JAVA_OPTS=-Xmx256m -Xms256m
+  volumes:
+    - ./settings/logstash/ingestor_logs.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    - /var/shared/ingestor/logs:/var/logs
+  links:
+    - elasticsearch
+  command: bash -c "logstash -f /usr/share/logstash/pipeline/logstash.conf && bin/logstash-plugin install file"
+
+kibana:
+  image: kibana:6.6.2
+  container_name: ingestor_kibana
+  volumes:
+    - ./settings/kibana/:/usr/share/kibana/config:ro
+  links:
+    - elasticsearch
+  ports:
+    - 5601:5601
