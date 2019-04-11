@@ -201,33 +201,3 @@ kafka_proxy:
 memcached:
   image: memcached
   restart: always
-
-elasticsearch:
-  image: elasticsearch:6.6.2
-  container_name: ingestor_es
-  environment:
-    - ES_JAVA_OPTS=-Xmx256m -Xms256m
-  volumes:
-    - ./settings/es/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-
-logstash:
-  image: logstash:6.6.2
-  container_name: ingestor_logstash
-  environment:
-    - ES_JAVA_OPTS=-Xmx256m -Xms256m
-  volumes:
-    - ./settings/logstash/ingestor_logs.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-    - /var/shared/ingestor/logs:/var/logs
-  links:
-    - elasticsearch
-  command: bash -c "logstash -f /usr/share/logstash/pipeline/logstash.conf && bin/logstash-plugin install file"
-
-kibana:
-  image: kibana:6.6.2
-  container_name: ingestor_kibana
-  volumes:
-    - ./settings/kibana/:/usr/share/kibana/config:ro
-  links:
-    - elasticsearch
-  ports:
-    - 5601:5601
