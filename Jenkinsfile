@@ -1,7 +1,7 @@
 #!groovy
 pipeline {
     agent {
-        label 'docker'
+        label 'ingestor'
     }
     stages {
         stage('Script Permission') {
