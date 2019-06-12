@@ -81,6 +81,8 @@ supporttool:
     - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
     - /var/shared/ingestor/logs:/var/log/ingestor
   links:
+    - authnode
+    - translator
     - persist_db
     - log_db
     - kafka
