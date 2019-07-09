@@ -147,16 +147,16 @@ ibex-api:
     - DB_URL=jdbc:postgresql://persist_db/ibex?currentSchema=ibex
     - DB_USERNAME=postgres
     - DB_PASSWORD=
-    - KAFKA_SERVERS=kafka:9092
     - DB_DRIVER=org.postgresql.Driver
     - DB_INITIAL_SIZE=3
     - DB_MAX_TOTAL=8
     - DB_MAX_WAIT_MILLIS=5000
     - LOG_DIR=/mnt/log
+    - CONFIG_DIR=/mnt/config
   links:
     - persist_db
-    - kafka
   volumes:
+    - ./settings/api-log:/mnt/config
     - /var/shared/ingestor/logs/ibex-api:/mnt/log
   working_dir: /app
   command: /app/bin/start.sh
