@@ -22,8 +22,7 @@ authnode:
     - ./settings/authws:/app/ingestor/resources
     - /var/shared/ingestor/logs:/var/log/ingestor
   links:
-    - persist_db
-    - log_db
+    - ibex_db
     - memcached
   ports:
     - "8090:8080"
@@ -41,8 +40,7 @@ uploadws_uploader:
     - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
     - /var/shared/ingestor/logs:/var/log/ingestor
   links:
-    - persist_db
-    - log_db
+    - ibex_db
     - authnode
     - kafka
   ports:
@@ -63,8 +61,7 @@ uploadws_processor:
     - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
     - /var/shared/ingestor/logs:/var/log/ingestor
   links:
-    - persist_db
-    - log_db
+    - ibex_db
     - authnode
     - kafka
   ports:
@@ -83,8 +80,7 @@ supporttool:
   links:
     - authnode
     - translator
-    - persist_db
-    - log_db
+    - ibex_db
     - kafka
   working_dir: /app/ingestor
   command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-logs.war --headless --contextPath /logs
@@ -95,8 +91,8 @@ translator:
   restart: always
   environment:
     - DATABASE_DRIVER=org.postgresql.Driver
-    - DATABASE_URL=jdbc:postgresql://persist_db:5432/ibex?currentSchema=ibex&user=postgres
-    - LOG_DATABASE_URL=jdbc:postgresql://log_db:5432/ibex_logs?currentSchema=ibex_logs&user=postgres
+    - DATABASE_URL=jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex&user=postgres
+    - LOG_DATABASE_URL=jdbc:postgresql://ibex_db:5432/ibex_logs?currentSchema=ibex_logs&user=postgres
     - DEST_URL=http://stg-df-dkr1.internetbrands.com:9001/upload/1.0/xml.jsp
     - KAFKA_SERVERS=kafka:9092
     - KAFKA_AUTO_COMMIT_INTERVAL_MS=3600000
@@ -112,8 +108,7 @@ translator:
   links:
     - kafka
     - zookeeper
-    - persist_db
-    - log_db
+    - ibex_db
 
 security_manager:
   image: docker-local.artifactory.internetbrands.com/security-manager:staging
@@ -144,7 +139,7 @@ ibex-api:
   container_name: ibex_api
   environment:
     - DEBUG=true
-    - DB_URL=jdbc:postgresql://persist_db/ibex?currentSchema=ibex
+    - DB_URL=jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex
     - DB_USERNAME=postgres
     - DB_PASSWORD=
     - DB_DRIVER=org.postgresql.Driver
@@ -154,28 +149,20 @@ ibex-api:
     - LOG_DIR=/mnt/log
     - CONFIG_DIR=/mnt/config
   links:
-    - persist_db
+    - ibex_db
   volumes:
     - ./settings/api-log:/mnt/config
     - /var/shared/ingestor/logs/ibex-api:/mnt/log
   working_dir: /app
   command: /app/bin/start.sh
 
-persist_db:
-  image: docker-local.artifactory.internetbrands.com/ibex-db:staging
-  container_name: persist_db
+ibex_db:
+  image: docker-local.artifactory.internetbrands.com/ibex/postgres_11.4_with_schema:1.5.23
+  container_name: ibex_db
   volumes:
     - ./settings/db:/mnt/scripts
   ports:
-    - 5433:5432
-
-log_db:
-  image: docker-local.artifactory.internetbrands.com/ibex-log-db:staging
-  container_name: log_db
-  volumes:
-    - ./settings/db:/mnt/scripts
-  ports:
-    - 5434:5432
+    - 5432:5432
 
 zookeeper:
   image: confluent/zookeeper
