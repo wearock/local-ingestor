@@ -157,7 +157,7 @@ ibex-api:
   command: /app/bin/start.sh
 
 ibex_db:
-  image: docker-local.artifactory.internetbrands.com/ibex/postgres_11.4_with_schema:1.5.23
+  image: docker-local.artifactory.internetbrands.com/ibex/postgres_11.4_with_schema:latest
   container_name: ibex_db
   volumes:
     - ./settings/db:/mnt/scripts

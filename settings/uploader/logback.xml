@@ -24,10 +24,10 @@
   <!--<logger name="org.hibernate.type" level="trace"/>-->
   
   <logger name="org.hibernate" level="warn"/>
-  <logger name="org.hibernate.stat.internal.ConcurrentStatisticsImpl" level="debug"/>
+  <logger name="org.hibernate.stat.internal.ConcurrentStatisticsImpl" level="error"/>
   <logger name="com.jolbox" level="info" />
   <logger name="org.eclipse.jetty.io.nio" level="error" />
-  <logger name="com.sesamecom.monitoring.healthmonitor" level="debug"/>
-  <logger name="com.zaxxer.hikari" level="debug"/>
+  <logger name="com.sesamecom.monitoring.healthmonitor" level="error"/>
+  <logger name="com.zaxxer.hikari" level="error"/>
 
 </configuration>

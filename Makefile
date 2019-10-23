@@ -12,7 +12,7 @@ updateimgs:
 	sudo docker pull docker-local.artifactory.internetbrands.com/udbf_translator:staging
 	sudo docker pull docker-local.artifactory.internetbrands.com/security-manager:staging
 	sudo docker pull docker-local.artifactory.internetbrands.com/ibex-api:staging
-	sudo docker pull docker-local.artifactory.internetbrands.com/ibex/postgres_11.4_with_schema:1.5.23
+	sudo docker pull docker-local.artifactory.internetbrands.com/ibex/postgres_11.4_with_schema:latest
 	- sudo docker images -f "dangling=true" -q | xargs sudo docker rmi -f
 
 up:
