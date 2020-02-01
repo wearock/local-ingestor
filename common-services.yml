@@ -100,6 +100,7 @@ translator:
     - MAX_TASKS_COUNT=8
     - CORE_JAVA_SETTINGS=
     - TMP_OUTPUT_DIR=/tmp/translator/
+    - PMS_VENDOR_MAPPING_FILE=/mnt/config/pmsVendorMapping.json
   volumes:
     - /var/shared/ingestor/storage/sesame/common:/usr/local/ingestor/common
     - /var/shared/ingestor/storage/translated:/tmp/translator
