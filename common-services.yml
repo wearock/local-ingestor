@@ -157,6 +157,20 @@ ibex-api:
   working_dir: /app
   command: /app/bin/start.sh
 
+sm-api:
+  image: docker-local.artifactory.internetbrands.com/sm-api:staging
+  container_name: sm_api
+  mem_limit: 1024m
+  links:
+    - ibex_db
+  volumes:
+    - ./settings/sm-api:/mnt/config
+    - /var/shared/ingestor/logs/sm-api:/mnt/log
+  ports:
+    - "10003:9443"
+  working_dir: /app/bin
+  command: java -jar -DsesameConfigurationFile=/mnt/config/sesame.properties -Dlogback.configurationFile=/mnt/config/logback.xml sm-api.jar
+
 ibex_db:
   image: docker-local.artifactory.internetbrands.com/ibex/postgres_11.4_with_schema:latest
   container_name: ibex_db
