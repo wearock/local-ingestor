@@ -56,6 +56,12 @@ uploadws_processor:
     - SESAME_SYSTEM=/usr/local/ingestor/system
     - SESAME_COMMON=/usr/local/ingestor/common
     - SESAME_LOCAL_STORE=/usr/local/ingestor/localstore
+    - SALESFORCE_VALIDATE_BUSINESS=true
+    - SALESFORCE_LOGIN_URL=https://login.salesforce.com/services/oauth2/token
+    - SALESFORCE_USER=d3@demandforce.com
+    - SALESFORCE_PASSWORD=^%hg$$%*t4198JPFCRIFE04Wex1fYFUq
+    - SALESFORCE_CLIENT_SECRET=25918502362341675
+    - SALESFORCE_CLIENT_ID=3MVG99OxTyEMCQ3jURpYYYprI3RCU67UZ15mAMpn1TvZ8rADO.ibZVpnmRbnJPnSVLWKzmtN.5KfC2q.lT_sb
   volumes:
     - ./settings/processor:/app/ingestor/resources
     - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
