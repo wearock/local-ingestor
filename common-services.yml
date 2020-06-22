@@ -220,7 +220,7 @@ kafka:
 
 schema_registry:
   image: confluentinc/cp-schema-registry
-  depends_on:
+  links:
     - zookeeper
     - kafka
   ports:
