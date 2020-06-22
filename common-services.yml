@@ -204,14 +204,17 @@ ibex_db:
     - 5432:5432
 
 zookeeper:
-  image: confluent/zookeeper
-  restart: always
+  image: confluentinc/cp-zookeeper
+  hostname: zookeeper
+  container_name: zookeeper
   environment:
-   zk_id: "1"
+    ZOOKEEPER_CLIENT_PORT: 2181
+    ZOOKEEPER_TICK_TIME: 2000
 
 kafka:
   image: docker-local.artifactory.internetbrands.com/demandforce/cp-kafka-including-schema
-  restart: always
+  hostname: kafka
+  container_name: kafka
   environment:
     - KAFKA_DATA_DIRS=/var/lib/kafka/data
     - KAFKA_BROKER_ID=1
@@ -226,24 +229,30 @@ kafka:
 
 schema_registry:
   image: confluentinc/cp-schema-registry
+  hostname: schema_registry
+  container_name: schema_registry
   links:
     - zookeeper
     - kafka
   ports:
     - 8081
   environment:
-    SCHEMA_REGISTRY_HOST_NAME: schema-registry
+    SCHEMA_REGISTRY_HOST_NAME: schema_registry
     SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
 
 
 kafka_proxy:
-  image: confluent/rest-proxy
-  restart: always
+  image: confluentinc/cp-kafka-rest
+  hostname: kafka_proxy
+  container_name: kafka_proxy
   links:
     - zookeeper
     - kafka
   environment:
-    - RP_ZOOKEEPER_CONNECT=zookeeper:2181
+    - KAFKA_REST_HOST_NAME=kafka_proxy
+    - KAFKA_REST_BOOTSTRAP_SERVERS=kafka:9092
+    - KAFKA_REST_LISTENERS=http://0.0.0.0:8082
+    - KAFKA_REST_SCHEMA_REGISTRY_URL=http://schema_registry:8081
 
 memcached:
   image: memcached
