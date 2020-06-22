@@ -43,6 +43,7 @@ uploadws_uploader:
     - ibex_db
     - authnode
     - kafka
+    - zookeeper
   ports:
     - "8091:8080"
   working_dir: /app/ingestor
@@ -56,12 +57,12 @@ uploadws_processor:
     - SESAME_SYSTEM=/usr/local/ingestor/system
     - SESAME_COMMON=/usr/local/ingestor/common
     - SESAME_LOCAL_STORE=/usr/local/ingestor/localstore
-    - SALESFORCE_VALIDATE_BUSINESS=true
-    - SALESFORCE_LOGIN_URL=https://login.salesforce.com/services/oauth2/token
-    - SALESFORCE_USER=d3@demandforce.com
-    - SALESFORCE_PASSWORD=^%hg$$%*t4198JPFCRIFE04Wex1fYFUq
-    - SALESFORCE_CLIENT_SECRET=25918502362341675
-    - SALESFORCE_CLIENT_ID=3MVG99OxTyEMCQ3jURpYYYprI3RCU67UZ15mAMpn1TvZ8rADO.ibZVpnmRbnJPnSVLWKzmtN.5KfC2q.lT_sb
+    - SALESFORCE_UPLOAD_BLOCKER=true
+    - SALESFORCE_LOGIN_URL=https://test.salesforce.com/services/oauth2/token
+    - SALESFORCE_USER=stg-d3@demandforce.com.dfull2
+    - SALESFORCE_PASSWORD=DemandforceD3!
+    - SALESFORCE_CLIENT_SECRET=DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
+    - SALESFORCE_CLIENT_ID=3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
     - ROLLBAR_TOKEN=ae81973719bc465fa8dd1bf61aca45ac
     - ROLLBAR_ENVIRONMENT=staging
     - KAFKA_SERVERS=kafka:9092
@@ -75,6 +76,7 @@ uploadws_processor:
     - ibex_db
     - authnode
     - kafka
+    - zookeeper
     - schema_registry
   ports:
     - "8092:8080"
