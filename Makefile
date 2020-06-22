@@ -14,6 +14,7 @@ updateimgs:
 	- sudo docker pull docker-local.artifactory.internetbrands.com/ibex-api:staging
 	- sudo docker pull docker-local.artifactory.internetbrands.com/sm-api:staging
 	- sudo docker pull docker-local.artifactory.internetbrands.com/ibex/postgres_11.4_with_schema:latest
+	- sudo docker pull docker-local.artifactory.internetbrands.com/demandforce/cp-kafka-including-schema
 	- sudo docker images -f "dangling=true" -q | xargs sudo docker rmi -f
 
 up:
