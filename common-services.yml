@@ -62,8 +62,6 @@ services:
       - schema_registry
     ports:
       - 8091:8080
-    working_dir: /app/ingestor
-    command: java -Xms1g -Xmx6g -XX:+UseG1GC -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
 
   supporttool:
     image: docker-local.artifactory.internetbrands.com/ingestor/logs:staging
