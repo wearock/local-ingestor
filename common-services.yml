@@ -1,262 +1,266 @@
-facade:
-  image: nginx
-  container_name: ibex-ingestor
-  restart: always
-  volumes:
-    - ./settings/facade:/etc/nginx/conf.d
-    - /var/shared/ingestor/logs/facade:/var/log/nginx
-    - /usr/local/cert:/mnt/cert
-  links:
-    - authnode
-    - uploadws_uploader
-    - supporttool
-  ports:
-    - "443:443"
-    - "9999:9999"
+---
+version: '2'
 
-authnode:
-  image: docker-local.artifactory.internetbrands.com/ingestor/authws:staging
-  container_name: authnode
-  restart: always
-  volumes:
-    - ./settings/authws:/app/ingestor/resources
-    - /var/shared/ingestor/logs:/var/log/ingestor
-  links:
-    - ibex_db
-    - memcached
-  ports:
-    - "8090:8080"
+services:
+  facade:
+    image: nginx
+    container_name: ibex-ingestor
+    restart: always
+    volumes:
+      - ./settings/facade:/etc/nginx/conf.d
+      - /var/shared/ingestor/logs/facade:/var/log/nginx
+      - /usr/local/cert:/mnt/cert
+    links:
+      - authnode
+      - uploadws_uploader
+      - supporttool
+    ports:
+      - 443:443
+      - 9999:9999
 
-uploadws_uploader:
-  image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
-  container_name: uploadws_uploader
-  restart: always
-  environment:
-    - SESAME_SYSTEM=/usr/local/ingestor/system
-    - SESAME_COMMON=/usr/local/ingestor/common
-    - SESAME_LOCAL_STORE=/usr/local/ingestor/localstore
-    - KAFKA_SERVERS=kafka:9092
-  volumes:
-    - ./settings/uploader:/app/ingestor/resources
-    - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
-    - /var/shared/ingestor/logs:/var/log/ingestor
-  links:
-    - ibex_db
-    - authnode
-    - kafka
-    - zookeeper
-  ports:
-    - "8091:8080"
-  working_dir: /app/ingestor
-  command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
+  authnode:
+    image: docker-local.artifactory.internetbrands.com/ingestor/authws:staging
+    container_name: authnode
+    restart: always
+    volumes:
+      - ./settings/authws:/app/ingestor/resources
+      - /var/shared/ingestor/logs:/var/log/ingestor
+    links:
+      - ibex_db
+      - memcached
+    ports:
+      - 8090:8080
 
-uploadws_processor:
-  image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
-  container_name: uploadws_processor
-  restart: always
-  environment:
-    - SESAME_SYSTEM=/usr/local/ingestor/system
-    - SESAME_COMMON=/usr/local/ingestor/common
-    - SESAME_LOCAL_STORE=/usr/local/ingestor/localstore
-    - SALESFORCE_UPLOAD_BLOCKER=true
-    - SALESFORCE_LOGIN_URL=https://test.salesforce.com/services/oauth2/token
-    - SALESFORCE_USER=stg-d3@demandforce.com.dfull2
-    - SALESFORCE_PASSWORD=DemandforceD3!
-    - SALESFORCE_CLIENT_SECRET=DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
-    - SALESFORCE_CLIENT_ID=3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
-    - ROLLBAR_TOKEN=ae81973719bc465fa8dd1bf61aca45ac
-    - ROLLBAR_ENVIRONMENT=staging
-    - KAFKA_SERVERS=kafka:9092
-    - UPLOAD_PROCESSED_TOPIC=ibex_upload_processed_avro
-    - SCHEMA_REGISTRY=http://schema_registry:8081
-  volumes:
-    - ./settings/processor:/app/ingestor/resources
-    - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
-    - /var/shared/ingestor/logs:/var/log/ingestor
-  links:
-    - ibex_db
-    - authnode
-    - kafka
-    - zookeeper
-    - schema_registry
-  ports:
-    - "8092:8080"
-  working_dir: /app/ingestor
-  command: java -Xms1g -Xmx6g -XX:+UseG1GC -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
+  uploadws_uploader:
+    image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
+    container_name: uploadws_uploader
+    restart: always
+    environment:
+      - SESAME_SYSTEM: /usr/local/ingestor/system
+      - SESAME_COMMON: /usr/local/ingestor/common
+      - SESAME_LOCAL_STORE: /usr/local/ingestor/localstore
+      - KAFKA_SERVERS: kafka:9092
+    volumes:
+      - ./settings/uploader:/app/ingestor/resources
+      - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
+      - /var/shared/ingestor/logs:/var/log/ingestor
+    links:
+      - ibex_db
+      - authnode
+      - kafka
+      - zookeeper
+    ports:
+      - 8091:8080
+    working_dir: /app/ingestor
+    command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
 
-supporttool:
-  image: docker-local.artifactory.internetbrands.com/ingestor/logs:staging
-  container_name: support_tooling
-  restart: always
-  volumes:
-    - ./settings/logs:/app/ingestor/resources
-    - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
-    - /var/shared/ingestor/logs:/var/log/ingestor
-  links:
-    - authnode
-    - translator
-    - ibex_db
-    - kafka
-  working_dir: /app/ingestor
-  command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-logs.war --headless --contextPath /logs
+  uploadws_processor:
+    image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
+    container_name: uploadws_processor
+    restart: always
+    environment:
+      - SESAME_SYSTEM: /usr/local/ingestor/system
+      - SESAME_COMMON: /usr/local/ingestor/common
+      - SESAME_LOCAL_STORE: /usr/local/ingestor/localstore
+      - SALESFORCE_UPLOAD_BLOCKER: true
+      - SALESFORCE_LOGIN_URL: https://test.salesforce.com/services/oauth2/token
+      - SALESFORCE_USER: stg-d3@demandforce.com.dfull2
+      - SALESFORCE_PASSWORD: DemandforceD3!
+      - SALESFORCE_CLIENT_SECRET: DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
+      - SALESFORCE_CLIENT_ID: 3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
+      - ROLLBAR_TOKEN: ae81973719bc465fa8dd1bf61aca45ac
+      - ROLLBAR_ENVIRONMENT: staging
+      - KAFKA_SERVERS: kafka:9092
+      - UPLOAD_PROCESSED_TOPIC: ibex_upload_processed_avro
+      - SCHEMA_REGISTRY: http://schema_registry:8081
+    volumes:
+      - ./settings/processor:/app/ingestor/resources
+      - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
+      - /var/shared/ingestor/logs:/var/log/ingestor
+    links:
+      - ibex_db
+      - authnode
+      - kafka
+      - zookeeper
+      - schema_registry
+    ports:
+      - 8092:8080
+    working_dir: /app/ingestor
+    command: java -Xms1g -Xmx6g -XX:+UseG1GC -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
 
-translator:
-  image: docker-local.artifactory.internetbrands.com/udbf_translator:staging
-  container_name: translator
-  restart: always
-  environment:
-    - DATABASE_DRIVER=org.postgresql.Driver
-    - DATABASE_URL=jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex&user=postgres
-    - LOG_DATABASE_URL=jdbc:postgresql://ibex_db:5432/ibex_logs?currentSchema=ibex_logs&user=postgres
-    - DEST_URL=http://stg-df-dkr1.internetbrands.com:9001/upload/1.0/xml.jsp
-    - KAFKA_SERVERS=kafka:9092
-    - KAFKA_SCHEMA_REGISTRY_SERVER=http://schema_registry:8081
-    - TRANSLATE_TOPIC=ibex_upload_processed_avro
-    - TRANSLATE_GROUP=translator_upload_processed
-    - GO_BACK_MINS=60
-    - MAX_TASKS_COUNT=8
-    - CORE_JAVA_SETTINGS=
-    - KAFKA_AUTO_COMMIT_INTERVAL_MS=60000
-    - KAFKA_MAX_POLL_INTERVAL_MS=1800000
-    - TMP_OUTPUT_DIR=/tmp/translator/
-    - ENABLE_RUNNING_CLIENT_QUEUE=false
-    - OPTION_TODAY=
-    - PMS_VENDOR_MAPPING_FILE=/mnt/config/pmsVendorMapping.json
-    - BRANDS_TO_TRANSLATE=DEMANDFORCE,LIGHTHOUSE
-    - DELTA_OVERSIZE_THRESHOLD_MB=2
-    - FULL_THREAD_POOL_SIZE=1
-    - DELTA_THREAD_POOL_SIZE=1
-    - OVERSIZE_DELTA_THREAD_POOL_SIZE=1
-  volumes:
-    - /var/shared/ingestor/storage/sesame/common:/usr/local/ingestor/common
-    - /var/shared/ingestor/storage/translated:/tmp/translator
-    - /var/shared/ingestor/logs/translator:/usr/local/ingestor/log
-    - ./settings/translator:/mnt/config
-  links:
-    - kafka
-    - zookeeper
-    - schema_registry
-    - ibex_db
+  supporttool:
+    image: docker-local.artifactory.internetbrands.com/ingestor/logs:staging
+    container_name: support_tooling
+    restart: always
+    volumes:
+      - ./settings/logs:/app/ingestor/resources
+      - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
+      - /var/shared/ingestor/logs:/var/log/ingestor
+    links:
+      - authnode
+      - translator
+      - ibex_db
+      - kafka
+    working_dir: /app/ingestor
+    command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-logs.war --headless --contextPath /logs
 
-security_manager:
-  image: docker-local.artifactory.internetbrands.com/security-manager:staging
-  container_name: security_manager
-  environment:
-    - BACKEND_SERVICE_HOST=ibex-api
-    - BACKEND_SERVICE_PORT=8080
-    - IBC_REALM_CONFIG_FILE=/mnt/config/stg-ibcv2-config.json
-    - AUTH_TOKENS_FILE=/mnt/config/tokens.json
-    - AUTH_CONFIG_FILE=/mnt/config/auth-config.json
-    - SKIP_AUTHENTICATION=false
-    - SKIP_AUTHORIZATION=false
-    - LOG_TO_FILE=true
-    - LOG_TO_CONSOLE=false
-    - REQUEST_LOG_FILE=/mnt/log/proxy-request.log
-    - PROXY_LOG_FILE=/mnt/log/proxy.log
-  ports:
-    - "10001:3000"
-  volumes:
-    - ./settings/api:/mnt/config
-    - /var/shared/ingestor/logs/ibex-api:/mnt/log
-  links:
-    - ibex-api
-  command: ./node_modules/forever/bin/forever src/index.js
+  translator:
+    image: docker-local.artifactory.internetbrands.com/udbf_translator:staging
+    container_name: translator
+    restart: always
+    environment:
+      - DATABASE_DRIVER: org.postgresql.Driver
+      - DATABASE_URL: jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex&user=postgres
+      - LOG_DATABASE_URL: jdbc:postgresql://ibex_db:5432/ibex_logs?currentSchema=ibex_logs&user=postgres
+      - DEST_URL: http://stg-df-dkr1.internetbrands.com:9001/upload/1.0/xml.jsp
+      - KAFKA_SERVERS: kafka:9092
+      - KAFKA_SCHEMA_REGISTRY_SERVER: http://schema_registry:8081
+      - TRANSLATE_TOPIC: ibex_upload_processed_avro
+      - TRANSLATE_GROUP: translator_upload_processed
+      - GO_BACK_MINS: 60
+      - MAX_TASKS_COUNT: 8
+      - CORE_JAVA_SETTINGS: 
+      - KAFKA_AUTO_COMMIT_INTERVAL_MS: 60000
+      - KAFKA_MAX_POLL_INTERVAL_MS: 1800000
+      - TMP_OUTPUT_DIR: /tmp/translator/
+      - ENABLE_RUNNING_CLIENT_QUEUE: false
+      - OPTION_TODAY: 
+      - PMS_VENDOR_MAPPING_FILE: /mnt/config/pmsVendorMapping.json
+      - BRANDS_TO_TRANSLATE: DEMANDFORCE,LIGHTHOUSE
+      - DELTA_OVERSIZE_THRESHOLD_MB: 2
+      - FULL_THREAD_POOL_SIZE: 1
+      - DELTA_THREAD_POOL_SIZE: 1
+      - OVERSIZE_DELTA_THREAD_POOL_SIZE: 1
+    volumes:
+      - /var/shared/ingestor/storage/sesame/common:/usr/local/ingestor/common
+      - /var/shared/ingestor/storage/translated:/tmp/translator
+      - /var/shared/ingestor/logs/translator:/usr/local/ingestor/log
+      - ./settings/translator:/mnt/config
+    links:
+      - kafka
+      - zookeeper
+      - schema_registry
+      - ibex_db
 
-ibex-api:
-  image: docker-local.artifactory.internetbrands.com/ibex-api:staging
-  container_name: ibex_api
-  environment:
-    - DEBUG=true
-    - DB_URL=jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex
-    - DB_USERNAME=postgres
-    - DB_PASSWORD=
-    - DB_DRIVER=org.postgresql.Driver
-    - DB_INITIAL_SIZE=3
-    - DB_MAX_TOTAL=8
-    - DB_MAX_WAIT_MILLIS=5000
-    - LOG_DIR=/mnt/log
-    - CONFIG_DIR=/mnt/config
-  links:
-    - ibex_db
-  volumes:
-    - ./settings/api-log:/mnt/config
-    - /var/shared/ingestor/logs/ibex-api:/mnt/log
-  working_dir: /app
-  command: /app/bin/start.sh
+  security_manager:
+    image: docker-local.artifactory.internetbrands.com/security-manager:staging
+    container_name: security_manager
+    environment:
+      - BACKEND_SERVICE_HOST: ibex-api
+      - BACKEND_SERVICE_PORT: 8080
+      - IBC_REALM_CONFIG_FILE: /mnt/config/stg-ibcv2-config.json
+      - AUTH_TOKENS_FILE: /mnt/config/tokens.json
+      - AUTH_CONFIG_FILE: /mnt/config/auth-config.json
+      - SKIP_AUTHENTICATION: false
+      - SKIP_AUTHORIZATION: false
+      - LOG_TO_FILE: true
+      - LOG_TO_CONSOLE: false
+      - REQUEST_LOG_FILE: /mnt/log/proxy-request.log
+      - PROXY_LOG_FILE: /mnt/log/proxy.log
+    ports:
+      - 10001:3000
+    volumes:
+      - ./settings/api:/mnt/config
+      - /var/shared/ingestor/logs/ibex-api:/mnt/log
+    links:
+      - ibex-api
+    command: ./node_modules/forever/bin/forever src/index.js
 
-sm-api:
-  image: docker-local.artifactory.internetbrands.com/sm-api:staging
-  container_name: sm_api
-  mem_limit: 1024m
-  links:
-    - ibex_db
-  volumes:
-    - ./settings/sm-api:/mnt/config
-    - /var/shared/ingestor/logs/sm-api:/mnt/log
-  ports:
-    - "10003:9443"
-  working_dir: /app/bin
-  command: java -jar -DsesameConfigurationFile=/mnt/config/sesame.properties -Dlogback.configurationFile=/mnt/config/logback.xml sm-api.jar
+  ibex-api:
+    image: docker-local.artifactory.internetbrands.com/ibex-api:staging
+    container_name: ibex_api
+    environment:
+      - DEBUG: true
+      - DB_URL: jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex
+      - DB_USERNAME: postgres
+      - DB_PASSWORD: 
+      - DB_DRIVER: org.postgresql.Driver
+      - DB_INITIAL_SIZE: 3
+      - DB_MAX_TOTAL: 8
+      - DB_MAX_WAIT_MILLIS: 5000
+      - LOG_DIR: /mnt/log
+      - CONFIG_DIR: /mnt/config
+    links:
+      - ibex_db
+    volumes:
+      - ./settings/api-log:/mnt/config
+      - /var/shared/ingestor/logs/ibex-api:/mnt/log
+    working_dir: /app
+    command: /app/bin/start.sh
 
-ibex_db:
-  image: docker-local.artifactory.internetbrands.com/ibex/postgres_11.4_with_schema:latest
-  container_name: ibex_db
-  volumes:
-    - ./settings/db:/mnt/scripts
-  ports:
-    - 5432:5432
+  sm-api:
+    image: docker-local.artifactory.internetbrands.com/sm-api:staging
+    container_name: sm_api
+    mem_limit: 1024m
+    links:
+      - ibex_db
+    volumes:
+      - ./settings/sm-api:/mnt/config
+      - /var/shared/ingestor/logs/sm-api:/mnt/log
+    ports:
+      - 10003:9443
+    working_dir: /app/bin
+    command: java -jar -DsesameConfigurationFile=/mnt/config/sesame.properties -Dlogback.configurationFile=/mnt/config/logback.xml sm-api.jar
 
-zookeeper:
-  image: confluentinc/cp-zookeeper
-  hostname: zookeeper
-  container_name: zookeeper
-  environment:
-    ZOOKEEPER_CLIENT_PORT: 2181
-    ZOOKEEPER_TICK_TIME: 2000
+  ibex_db:
+    image: docker-local.artifactory.internetbrands.com/ibex/postgres_11.4_with_schema:latest
+    container_name: ibex_db
+    volumes:
+      - ./settings/db:/mnt/scripts
+    ports:
+      - 5432:5432
 
-kafka:
-  image: docker-local.artifactory.internetbrands.com/demandforce/cp-kafka-including-schema
-  hostname: kafka
-  container_name: kafka
-  environment:
-    - KAFKA_DATA_DIRS=/var/lib/kafka/data
-    - KAFKA_BROKER_ID=1
-    - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-    - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-    - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
-    - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
-    - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
-    - CONFLUENT_SUPPORT_CUSTOMER_ID=anonymous
-  links:
-    - zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    hostname: zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
 
-schema_registry:
-  image: confluentinc/cp-schema-registry
-  hostname: schema_registry
-  container_name: schema_registry
-  links:
-    - zookeeper
-    - kafka
-  ports:
-    - 8081
-  environment:
-    SCHEMA_REGISTRY_HOST_NAME: schema_registry
-    SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+  kafka:
+    image: docker-local.artifactory.internetbrands.com/demandforce/cp-kafka-including-schema
+    hostname: kafka
+    container_name: kafka
+    environment:
+      KAFKA_DATA_DIRS: /var/lib/kafka/data
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      CONFLUENT_SUPPORT_CUSTOMER_ID: anonymous
+    links:
+      - zookeeper
+
+  schema_registry:
+    image: confluentinc/cp-schema-registry
+    hostname: schema_registry
+    container_name: schema_registry
+    links:
+      - zookeeper
+      - kafka
+    ports:
+      - 8081:8081
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema_registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
 
 
-kafka_proxy:
-  image: confluentinc/cp-kafka-rest
-  hostname: kafka_proxy
-  container_name: kafka_proxy
-  links:
-    - zookeeper
-    - kafka
-  environment:
-    - KAFKA_REST_HOST_NAME=kafka_proxy
-    - KAFKA_REST_BOOTSTRAP_SERVERS=kafka:9092
-    - KAFKA_REST_LISTENERS=http://0.0.0.0:8082
-    - KAFKA_REST_SCHEMA_REGISTRY_URL=http://schema_registry:8081
+  kafka_proxy:
+    image: confluentinc/cp-kafka-rest
+    hostname: kafka_proxy
+    container_name: kafka_proxy
+    links:
+      - zookeeper
+      - kafka
+    environment:
+      KAFKA_REST_HOST_NAME: kafka_proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_REST_LISTENERS: http://0.0.0.0:8082
+      KAFKA_REST_SCHEMA_REGISTRY_URL: http://schema_registry:8081
 
-memcached:
-  image: memcached
-  restart: always
+  memcached:
+    image: memcached
+    restart: always
