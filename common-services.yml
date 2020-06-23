@@ -36,10 +36,10 @@ services:
     container_name: uploadws_uploader
     restart: always
     environment:
-      - SESAME_SYSTEM: /usr/local/ingestor/system
-      - SESAME_COMMON: /usr/local/ingestor/common
-      - SESAME_LOCAL_STORE: /usr/local/ingestor/localstore
-      - KAFKA_SERVERS: kafka:9092
+      SESAME_SYSTEM: /usr/local/ingestor/system
+      SESAME_COMMON: /usr/local/ingestor/common
+      SESAME_LOCAL_STORE: /usr/local/ingestor/localstore
+      KAFKA_SERVERS: kafka:9092
     volumes:
       - ./settings/uploader:/app/ingestor/resources
       - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
@@ -59,20 +59,20 @@ services:
     container_name: uploadws_processor
     restart: always
     environment:
-      - SESAME_SYSTEM: /usr/local/ingestor/system
-      - SESAME_COMMON: /usr/local/ingestor/common
-      - SESAME_LOCAL_STORE: /usr/local/ingestor/localstore
-      - SALESFORCE_UPLOAD_BLOCKER: true
-      - SALESFORCE_LOGIN_URL: https://test.salesforce.com/services/oauth2/token
-      - SALESFORCE_USER: stg-d3@demandforce.com.dfull2
-      - SALESFORCE_PASSWORD: DemandforceD3!
-      - SALESFORCE_CLIENT_SECRET: DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
-      - SALESFORCE_CLIENT_ID: 3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
-      - ROLLBAR_TOKEN: ae81973719bc465fa8dd1bf61aca45ac
-      - ROLLBAR_ENVIRONMENT: staging
-      - KAFKA_SERVERS: kafka:9092
-      - UPLOAD_PROCESSED_TOPIC: ibex_upload_processed_avro
-      - SCHEMA_REGISTRY: http://schema_registry:8081
+      SESAME_SYSTEM: /usr/local/ingestor/system
+      SESAME_COMMON: /usr/local/ingestor/common
+      SESAME_LOCAL_STORE: /usr/local/ingestor/localstore
+      SALESFORCE_UPLOAD_BLOCKER: "true"
+      SALESFORCE_LOGIN_URL: https://test.salesforce.com/services/oauth2/token
+      SALESFORCE_USER: stg-d3@demandforce.com.dfull2
+      SALESFORCE_PASSWORD: DemandforceD3!
+      SALESFORCE_CLIENT_SECRET: DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
+      SALESFORCE_CLIENT_ID: 3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
+      ROLLBAR_TOKEN: ae81973719bc465fa8dd1bf61aca45ac
+      ROLLBAR_ENVIRONMENT: staging
+      KAFKA_SERVERS: kafka:9092
+      UPLOAD_PROCESSED_TOPIC: ibex_upload_processed_avro
+      SCHEMA_REGISTRY: http://schema_registry:8081
     volumes:
       - ./settings/processor:/app/ingestor/resources
       - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
@@ -109,28 +109,28 @@ services:
     container_name: translator
     restart: always
     environment:
-      - DATABASE_DRIVER: org.postgresql.Driver
-      - DATABASE_URL: jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex&user=postgres
-      - LOG_DATABASE_URL: jdbc:postgresql://ibex_db:5432/ibex_logs?currentSchema=ibex_logs&user=postgres
-      - DEST_URL: http://stg-df-dkr1.internetbrands.com:9001/upload/1.0/xml.jsp
-      - KAFKA_SERVERS: kafka:9092
-      - KAFKA_SCHEMA_REGISTRY_SERVER: http://schema_registry:8081
-      - TRANSLATE_TOPIC: ibex_upload_processed_avro
-      - TRANSLATE_GROUP: translator_upload_processed
-      - GO_BACK_MINS: 60
-      - MAX_TASKS_COUNT: 8
-      - CORE_JAVA_SETTINGS: 
-      - KAFKA_AUTO_COMMIT_INTERVAL_MS: 60000
-      - KAFKA_MAX_POLL_INTERVAL_MS: 1800000
-      - TMP_OUTPUT_DIR: /tmp/translator/
-      - ENABLE_RUNNING_CLIENT_QUEUE: false
-      - OPTION_TODAY: 
-      - PMS_VENDOR_MAPPING_FILE: /mnt/config/pmsVendorMapping.json
-      - BRANDS_TO_TRANSLATE: DEMANDFORCE,LIGHTHOUSE
-      - DELTA_OVERSIZE_THRESHOLD_MB: 2
-      - FULL_THREAD_POOL_SIZE: 1
-      - DELTA_THREAD_POOL_SIZE: 1
-      - OVERSIZE_DELTA_THREAD_POOL_SIZE: 1
+      DATABASE_DRIVER: "org.postgresql.Driver"
+      DATABASE_URL: jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex&user=postgres
+      LOG_DATABASE_URL: jdbc:postgresql://ibex_db:5432/ibex_logs?currentSchema=ibex_logs&user=postgres
+      DEST_URL: http://stg-df-dkr1.internetbrands.com:9001/upload/1.0/xml.jsp
+      KAFKA_SERVERS: kafka:9092
+      KAFKA_SCHEMA_REGISTRY_SERVER: http://schema_registry:8081
+      TRANSLATE_TOPIC: ibex_upload_processed_avro
+      TRANSLATE_GROUP: translator_upload_processed
+      GO_BACK_MINS: 60
+      MAX_TASKS_COUNT: 8
+      CORE_JAVA_SETTINGS: 
+      KAFKA_AUTO_COMMIT_INTERVAL_MS: 60000
+      KAFKA_MAX_POLL_INTERVAL_MS: 1800000
+      TMP_OUTPUT_DIR: /tmp/translator/
+      ENABLE_RUNNING_CLIENT_QUEUE: "false"
+      OPTION_TODAY: 
+      PMS_VENDOR_MAPPING_FILE: /mnt/config/pmsVendorMapping.json
+      BRANDS_TO_TRANSLATE: DEMANDFORCE,LIGHTHOUSE
+      DELTA_OVERSIZE_THRESHOLD_MB: 2
+      FULL_THREAD_POOL_SIZE: 1
+      DELTA_THREAD_POOL_SIZE: 1
+      OVERSIZE_DELTA_THREAD_POOL_SIZE: 1
     volumes:
       - /var/shared/ingestor/storage/sesame/common:/usr/local/ingestor/common
       - /var/shared/ingestor/storage/translated:/tmp/translator
@@ -146,17 +146,17 @@ services:
     image: docker-local.artifactory.internetbrands.com/security-manager:staging
     container_name: security_manager
     environment:
-      - BACKEND_SERVICE_HOST: ibex-api
-      - BACKEND_SERVICE_PORT: 8080
-      - IBC_REALM_CONFIG_FILE: /mnt/config/stg-ibcv2-config.json
-      - AUTH_TOKENS_FILE: /mnt/config/tokens.json
-      - AUTH_CONFIG_FILE: /mnt/config/auth-config.json
-      - SKIP_AUTHENTICATION: false
-      - SKIP_AUTHORIZATION: false
-      - LOG_TO_FILE: true
-      - LOG_TO_CONSOLE: false
-      - REQUEST_LOG_FILE: /mnt/log/proxy-request.log
-      - PROXY_LOG_FILE: /mnt/log/proxy.log
+      BACKEND_SERVICE_HOST: ibex-api
+      BACKEND_SERVICE_PORT: 8080
+      IBC_REALM_CONFIG_FILE: /mnt/config/stg-ibcv2-config.json
+      AUTH_TOKENS_FILE: /mnt/config/tokens.json
+      AUTH_CONFIG_FILE: /mnt/config/auth-config.json
+      SKIP_AUTHENTICATION: "false"
+      SKIP_AUTHORIZATION: "false"
+      LOG_TO_FILE: "true"
+      LOG_TO_CONSOLE: "false"
+      REQUEST_LOG_FILE: /mnt/log/proxy-request.log
+      PROXY_LOG_FILE: /mnt/log/proxy.log
     ports:
       - 10001:3000
     volumes:
@@ -170,16 +170,16 @@ services:
     image: docker-local.artifactory.internetbrands.com/ibex-api:staging
     container_name: ibex_api
     environment:
-      - DEBUG: true
-      - DB_URL: jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex
-      - DB_USERNAME: postgres
-      - DB_PASSWORD: 
-      - DB_DRIVER: org.postgresql.Driver
-      - DB_INITIAL_SIZE: 3
-      - DB_MAX_TOTAL: 8
-      - DB_MAX_WAIT_MILLIS: 5000
-      - LOG_DIR: /mnt/log
-      - CONFIG_DIR: /mnt/config
+      DEBUG: "true"
+      DB_URL: jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex
+      DB_USERNAME: postgres
+      DB_PASSWORD: 
+      DB_DRIVER: org.postgresql.Driver
+      DB_INITIAL_SIZE: 3
+      DB_MAX_TOTAL: 8
+      DB_MAX_WAIT_MILLIS: 5000
+      LOG_DIR: /mnt/log
+      CONFIG_DIR: /mnt/config
     links:
       - ibex_db
     volumes:
