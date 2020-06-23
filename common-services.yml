@@ -12,7 +12,7 @@ services:
       - /usr/local/cert:/mnt/cert
     links:
       - authnode
-      - uploadws_uploader
+      - uploadnode
       - supporttool
     ports:
       - 443:443
@@ -31,32 +31,9 @@ services:
     ports:
       - 8090:8080
 
-  uploadws_uploader:
+  uploadnode:
     image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
-    container_name: uploadws_uploader
-    restart: always
-    environment:
-      SESAME_SYSTEM: /usr/local/ingestor/system
-      SESAME_COMMON: /usr/local/ingestor/common
-      SESAME_LOCAL_STORE: /usr/local/ingestor/localstore
-      KAFKA_SERVERS: kafka:9092
-    volumes:
-      - ./settings/uploader:/app/ingestor/resources
-      - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
-      - /var/shared/ingestor/logs:/var/log/ingestor
-    links:
-      - ibex_db
-      - authnode
-      - kafka
-      - zookeeper
-    ports:
-      - 8091:8080
-    working_dir: /app/ingestor
-    command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
-
-  uploadws_processor:
-    image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
-    container_name: uploadws_processor
+    container_name: uploadnode
     restart: always
     environment:
       SESAME_SYSTEM: /usr/local/ingestor/system
@@ -84,7 +61,7 @@ services:
       - zookeeper
       - schema_registry
     ports:
-      - 8092:8080
+      - 8091:8080
     working_dir: /app/ingestor
     command: java -Xms1g -Xmx6g -XX:+UseG1GC -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar upload-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
 

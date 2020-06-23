@@ -2,8 +2,7 @@
 SHELL := /bin/bash
 
 clean:
-	sudo docker-compose -f common-services.yml stop
-	sudo docker-compose -f common-services.yml rm -v --force
+	sudo docker-compose -f common-services.yml down --remove-orphans
 
 updateimgs:
 	- sudo docker pull docker-local.artifactory.internetbrands.com/ingestor/authws:staging
