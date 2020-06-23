@@ -39,7 +39,7 @@ pipeline {
                 sh './restart.sh'
             }
         }
-        stage('Register clients') {
+        stage('Register') {
             steps {
                 sh './register.sh'
             }

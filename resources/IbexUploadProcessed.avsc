@@ -1,0 +1,44 @@
+{
+
+  "type": "record",
+  "namespace": "com.demandforce.kafka.avro.model.ibexuploadprocessed",
+  "name": "IbexUploadProcessed",
+  "doc": "Represents an upload that has been ingested",
+  "fields": [
+   {
+    "name": "clientId",
+    "type": {"type": "string","avro.java.string": "String"},
+    "doc": "the client id of the business for the uploaded file"
+   },
+   {
+    "name": "brand",
+    "type": {"type": "enum", "name": "Brand", "symbols": ["DEMANDFORCE","LIGHTHOUSE"]},
+    "doc": "the brand for this translation"
+   },
+   {
+    "name": "uploadType",
+    "type": {"type": "enum", "name": "UploadType", "symbols": ["INITIAL","DELTA"]},
+    "doc": "type of upload, either initial or delta"
+   },
+   {
+    "name": "fileName",
+    "type": {"type": "string", "avro.java.string": "String"},
+    "doc": "relative path for the file"
+   },
+   {
+    "name": "fileSizeBytes",
+    "type": "long",
+    "doc": "xml file size"
+   },
+   {
+    "name": "arrivalTime",
+    "type": {"type": "long", "logicalType": "timestamp-millis"},
+    "doc": "time the xml file was received"
+   },
+   {
+    "name": "processingCompletedTime",
+    "type": {"type": "long", "logicalType": "timestamp-millis"},
+    "doc": "time processing was completed"
+   }
+  ]
+}
