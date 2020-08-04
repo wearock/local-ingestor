@@ -1,0 +1,71 @@
+{
+    "type":"record",
+    "name":"IbexFileUploaded",
+    "namespace":"com.demandforce.kafka.avro.model",
+    "doc":"Represents a customer file upload was received",
+    "fields":[
+        {
+            "name":"publisher",
+            "type":{
+                "type":"string",
+                "avro.java.string":"String"
+            },
+            "doc":"the process that published this message"
+        },
+        {
+            "name":"clientId",
+            "type":"long",
+            "doc":"the client id this upload belongs to."
+        },
+        {
+            "name":"fileName",
+            "type":{
+                "type":"string",
+                "avro.java.string":"String"
+            },
+            "doc":"upload file name"
+        },
+        {
+            "name":"arrivalTime",
+            "type":{
+                "type":"long",
+                "logicalType":"timestamp-millis"
+            },
+            "doc":"file upload time"
+        },
+        {
+            "name":"initial",
+            "type":[
+                "null",
+                "boolean"
+            ],
+            "doc":"whether this is an initial (aka full) upload."
+        },
+        {
+            "name":"fileSizeBytes",
+            "type":"long",
+            "doc":"file upload size"
+        },
+        {
+            "name":"brand",
+            "type":[
+                "null",
+                {
+                    "type":"string",
+                    "avro.java.string":"String"
+                }
+            ],
+            "doc":"brand (e.g., DF, Lighthouse, etc)"
+        },
+        {
+            "name":"clientDatasetHistoryId",
+            "type":"long",
+            "doc":"client dataset history id"
+        },
+        {
+            "name":"extractorLogHistoryId",
+            "type":"long",
+            "doc":"extractor log history id"
+        }
+    ]
+}
