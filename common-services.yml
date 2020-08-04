@@ -10,7 +10,7 @@ services:
       - ./settings/facade:/etc/nginx/conf.d
       - /var/shared/ingestor/logs/facade:/var/log/nginx
       - /usr/local/cert:/mnt/cert
-    links:
+    depends_on:
       - authnode
       - uploadnode
       - supporttool
@@ -25,7 +25,7 @@ services:
     volumes:
       - ./settings/authws:/app/ingestor/resources
       - /var/shared/ingestor/logs:/var/log/ingestor
-    links:
+    depends_on:
       - ibex_db
       - memcached
     ports:
@@ -36,25 +36,26 @@ services:
     container_name: uploadnode
     restart: always
     environment:
-      SESAME_SYSTEM: /usr/local/ingestor/system
-      SESAME_COMMON: /usr/local/ingestor/common
-      SESAME_LOCAL_STORE: /usr/local/ingestor/localstore
-      SALESFORCE_UPLOAD_BLOCKER: "true"
-      SALESFORCE_LOGIN_URL: https://test.salesforce.com/services/oauth2/token
-      SALESFORCE_USER: stg-d3@demandforce.com.dfull2
-      SALESFORCE_PASSWORD: DemandforceD3!
-      SALESFORCE_CLIENT_SECRET: DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
-      SALESFORCE_CLIENT_ID: 3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
-      ROLLBAR_TOKEN: ae81973719bc465fa8dd1bf61aca45ac
-      ROLLBAR_ENVIRONMENT: staging
-      KAFKA_SERVERS: kafka:9092
-      UPLOAD_PROCESSED_TOPIC: ibex_upload_processed_avro
-      SCHEMA_REGISTRY: http://schema_registry:8081
+      - SESAME_SYSTEM=/usr/local/ingestor/system
+      - SESAME_COMMON=/usr/local/ingestor/common
+      - SESAME_LOCAL_STORE=/usr/local/ingestor/localstore
+      - SALESFORCE_UPLOAD_BLOCKER=true
+      - SALESFORCE_LOGIN_URL=https://test.salesforce.com/services/oauth2/token
+      - SALESFORCE_USER=stg-d3@demandforce.com.dfull2
+      - SALESFORCE_PASSWORD=DemandforceD3!
+      - SALESFORCE_CLIENT_SECRET=DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
+      - SALESFORCE_CLIENT_ID=3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
+      - ROLLBAR_TOKEN=ae81973719bc465fa8dd1bf61aca45ac
+      - ROLLBAR_ENVIRONMENT=staging
+      - KAFKA_SERVERS=kafka:9092
+      - UPLOAD_PROCESSED_TOPIC=ibex_upload_processed_avro
+      - FILE_UPLOADED_TOPIC=ibex_file_uploaded_avro
+      - SCHEMA_REGISTRY=http://schema_registry:8081
     volumes:
       - ./settings/processor:/app/ingestor/resources
       - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
       - /var/shared/ingestor/logs:/var/log/ingestor
-    links:
+    depends_on:
       - ibex_db
       - authnode
       - kafka
@@ -71,7 +72,7 @@ services:
       - ./settings/logs:/app/ingestor/resources
       - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
       - /var/shared/ingestor/logs:/var/log/ingestor
-    links:
+    depends_on:
       - authnode
       - translator
       - ibex_db
@@ -111,7 +112,7 @@ services:
       - /var/shared/ingestor/storage/translated:/tmp/translator
       - /var/shared/ingestor/logs/translator:/usr/local/ingestor/log
       - ./settings/translator:/mnt/config
-    links:
+    depends_on:
       - kafka
       - zookeeper
       - schema_registry
@@ -137,7 +138,7 @@ services:
     volumes:
       - ./settings/api:/mnt/config
       - /var/shared/ingestor/logs/ibex-api:/mnt/log
-    links:
+    depends_on:
       - ibex-api
     command: ./node_modules/forever/bin/forever src/index.js
 
@@ -155,7 +156,7 @@ services:
       DB_MAX_WAIT_MILLIS: 5000
       LOG_DIR: /mnt/log
       CONFIG_DIR: /mnt/config
-    links:
+    depends_on:
       - ibex_db
     volumes:
       - ./settings/api-log:/mnt/config
@@ -167,7 +168,7 @@ services:
     image: docker-local.artifactory.internetbrands.com/sm-api:staging
     container_name: sm_api
     mem_limit: 1024m
-    links:
+    depends_on:
       - ibex_db
     volumes:
       - ./settings/sm-api:/mnt/config
@@ -206,14 +207,14 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       CONFLUENT_SUPPORT_CUSTOMER_ID: anonymous
-    links:
+    depends_on:
       - zookeeper
 
   schema_registry:
     image: confluentinc/cp-schema-registry
     hostname: schema_registry
     container_name: schema_registry
-    links:
+    depends_on:
       - zookeeper
       - kafka
     ports:
@@ -227,7 +228,7 @@ services:
     image: confluentinc/cp-kafka-rest
     hostname: kafka_proxy
     container_name: kafka_proxy
-    links:
+    depends_on:
       - zookeeper
       - kafka
     environment:
