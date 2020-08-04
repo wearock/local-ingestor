@@ -1,5 +1,4 @@
 {
-
   "type": "record",
   "namespace": "com.demandforce.kafka.avro.model.ibexuploadprocessed",
   "name": "IbexUploadProcessed",
