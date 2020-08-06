@@ -18,6 +18,7 @@ updateimgs:
 	- sudo docker pull confluentinc/cp-schema-registry
 	- sudo docker pull confluentinc/cp-kafka-rest
 	- sudo docker pull memcached
+	- sudo docker pull landoop/kafka-topics-ui
 	- sudo docker images -f "dangling=true" -q | xargs sudo docker rmi -f
 
 up:

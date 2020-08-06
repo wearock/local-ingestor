@@ -240,3 +240,14 @@ services:
   memcached:
     image: memcached
     restart: always
+
+  kafkaui:
+    image: landoop/kafka-topics-ui
+    container_name: kafkaui
+    environment:
+      - KAFKA_REST_PROXY_URL=http://kafka_proxy:8082
+      - PROXY=true
+    depends_on:
+      - kafka_proxy
+    ports:
+      - 8180:8000
