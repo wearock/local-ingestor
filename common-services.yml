@@ -45,12 +45,18 @@ services:
       - SALESFORCE_PASSWORD=DemandforceD3!
       - SALESFORCE_CLIENT_SECRET=DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
       - SALESFORCE_CLIENT_ID=3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
+      - ROLLBAR_ENABLED=true
       - ROLLBAR_TOKEN=ae81973719bc465fa8dd1bf61aca45ac
       - ROLLBAR_ENVIRONMENT=staging
       - KAFKA_SERVERS=kafka:9092
       - UPLOAD_PROCESSED_TOPIC=ibex_upload_processed_avro
-      - FILE_UPLOADED_TOPIC=ibex_file_uploaded_avro
       - SCHEMA_REGISTRY=http://schema_registry:8081
+      - FILE_UPLOADED_CONSUMER_ID=ingestor_processor_consumer
+      - FILE_UPLOADED_TOPIC=ibex_file_uploaded_avro
+      - SET_UP_KAFKA_CONSUMER=true
+      - REWIND_MINUTES=60
+      - DIFF_THREADS=15
+      - INITIAL_THREADS=3
     volumes:
       - ./settings/processor:/app/ingestor/resources
       - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
@@ -68,6 +74,8 @@ services:
     image: docker-local.artifactory.internetbrands.com/ingestor/logs:staging
     container_name: support_tooling
     restart: always
+    environment:
+      - FILE_DOWNLOAD_ENABLE=true 
     volumes:
       - ./settings/logs:/app/ingestor/resources
       - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
@@ -92,6 +100,7 @@ services:
       KAFKA_SERVERS: kafka:9092
       KAFKA_SCHEMA_REGISTRY_SERVER: http://schema_registry:8081
       TRANSLATE_TOPIC: ibex_upload_processed_avro
+      IBEX_FILE_TRANSLATED_TOPIC: ibex_file_translated_avro
       TRANSLATE_GROUP: translator_upload_processed
       GO_BACK_MINS: 60
       MAX_TASKS_COUNT: 8
@@ -102,7 +111,6 @@ services:
       ENABLE_RUNNING_CLIENT_QUEUE: "false"
       OPTION_TODAY: 
       PMS_VENDOR_MAPPING_FILE: /mnt/config/pmsVendorMapping.json
-      BRANDS_TO_TRANSLATE: DEMANDFORCE,LIGHTHOUSE
       DELTA_OVERSIZE_THRESHOLD_MB: 2
       FULL_THREAD_POOL_SIZE: 1
       DELTA_THREAD_POOL_SIZE: 1
