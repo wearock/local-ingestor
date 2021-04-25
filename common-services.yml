@@ -190,14 +190,14 @@ services:
       DB_MAX_WAIT_MILLIS: 5000
       LOG_DIR: /mnt/log
       CONFIG_DIR: /mnt/config
-    - LOGDB_URL=jdbc:postgresql://ibex_db:5432/ibex_logs?currentSchema=ibex_logs
-    - LOGDB_USERNAME=postgres
-    - LOGDB_PASSWORD=
-    - SALESFORCE_LOGIN_URL=https://test.salesforce.com/services/oauth2/token
-    - SALESFORCE_USER=stg-d3@demandforce.com.dfull2
-    - SALESFORCE_PASSWORD=DemandforceD3!
-    - SALESFORCE_CLIENT_SECRET=DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
-    - SALESFORCE_CLIENT_ID=3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
+      LOGDB_URL: jdbc:postgresql://ibex_db:5432/ibex_logs?currentSchema=ibex_logs
+      LOGDB_USERNAME: postgres
+      LOGDB_PASSWORD: 
+      SALESFORCE_LOGIN_URL: https://test.salesforce.com/services/oauth2/token
+      SALESFORCE_USER: stg-d3@demandforce.com.dfull2
+      SALESFORCE_PASSWORD: DemandforceD3!
+      SALESFORCE_CLIENT_SECRET: DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
+      SALESFORCE_CLIENT_ID: 3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
     depends_on:
       - ibex_db
     volumes:
