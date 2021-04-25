@@ -1,0 +1,29 @@
+<configuration>
+  <property name="LOG_PATH" value="/var/log/ingestor"/>
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/uploadws_processor.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <fileNamePattern>${LOG_PATH}/uploadws_processor.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <!-- keep 30 days' worth of history -->
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{MM-dd-yyyy HH:mm:ss.SSS} [%thread:DB=%X{currentMember}] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender> 
+
+  <root level="INFO">
+    <appender-ref ref="FILE" />
+  </root>
+
+  <logger name="com.jolbox" level="info"/>
+  <logger name="org.hibernate" level="warn"/>
+  <logger name="org.hibernate.stat.internal.ConcurrentStatisticsImpl" level="debug"/>
+  <!--<logger name="org.hibernate.SQL" level="debug"/>-->
+  <!--<logger name="org.hibernate.type" level="trace"/>-->
+  <logger name="org.eclipse.jetty.io.nio" level="error"/>
+  <!--<logger name="org.eclipse.jetty.server" level="debug"/>-->
+  <!--<logger name="org.eclipse.jetty.util" level="debug"/>-->
+  <logger name="com.zaxxer.hikari" level="info"/>
+</configuration>

@@ -5,9 +5,10 @@ clean:
 	sudo docker-compose -f common-services.yml down --remove-orphans
 
 updateimgs:
-	- sudo docker pull docker-local.artifactory.internetbrands.com/ingestor/authws:staging
-	- sudo docker pull docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
-	- sudo docker pull docker-local.artifactory.internetbrands.com/ingestor/logs:staging
+	- sudo docker pull docker-local.artifactory.internetbrands.com/ibex_authws:staging
+	- sudo docker pull docker-local.artifactory.internetbrands.com/ibex_uploadws:staging
+	- sudo docker pull docker-local.artifactory.internetbrands.com/ibex_upload_processor:staging
+	- sudo docker pull docker-local.artifactory.internetbrands.com/ibex_upload_logs:staging
 	- sudo docker pull docker-local.artifactory.internetbrands.com/udbf_translator:staging
 	- sudo docker pull docker-local.artifactory.internetbrands.com/security-manager:staging
 	- sudo docker pull docker-local.artifactory.internetbrands.com/ibex-api:staging

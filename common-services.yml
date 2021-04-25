@@ -19,7 +19,7 @@ services:
       - 9999:9999
 
   authnode:
-    image: docker-local.artifactory.internetbrands.com/ingestor/authws:staging
+    image: docker-local.artifactory.internetbrands.com/ibex_authws:staging
     container_name: authnode
     restart: always
     volumes:
@@ -30,10 +30,37 @@ services:
       - memcached
     ports:
       - 8090:8080
+    command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar ibex-authws.war --headless --contextPath /
 
   uploadnode:
-    image: docker-local.artifactory.internetbrands.com/ingestor/uploadws:staging
+    image: docker-local.artifactory.internetbrands.com/ibex_uploadws:staging
     container_name: uploadnode
+    restart: always
+    environment:
+      - SESAME_SYSTEM=/usr/local/ingestor/system
+      - SESAME_COMMON=/usr/local/ingestor/common
+      - SESAME_LOCAL_STORE=/usr/local/ingestor/localstore
+      - FILE_UPLOADED_TOPIC=ibex_file_uploaded_avro
+      - KAFKA_SERVERS=kafka:9092
+      - SCHEMA_REGISTRY=http://schema_registry:8081
+      - SET_UP_KAFKA_CONSUMER=false
+    volumes:
+      - ./settings/uploadws:/app/ingestor/resources
+      - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
+      - /var/shared/ingestor/logs:/var/log/ingestor
+    depends_on:
+      - ibex_db
+      - authnode
+      - kafka
+      - zookeeper
+      - schema_registry
+    ports:
+      - 8091:8080
+    command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dhibernate.generate_statistics=true -jar ibex-uploadws.war --headless --contextPath /  --jettyXml resources/jetty-env.xml
+    
+  processornode:
+    image: docker-local.artifactory.internetbrands.com/ibex_upload_processor:staging
+    container_name: processornode
     restart: always
     environment:
       - SESAME_SYSTEM=/usr/local/ingestor/system
@@ -67,11 +94,10 @@ services:
       - kafka
       - zookeeper
       - schema_registry
-    ports:
-      - 8091:8080
+    command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -cp .:/app/bin/*:/app/bin/lib/* com.sesamecom.upload.MainUploadProcessor
 
   supporttool:
-    image: docker-local.artifactory.internetbrands.com/ingestor/logs:staging
+    image: docker-local.artifactory.internetbrands.com/ibex_upload_logs:staging
     container_name: support_tooling
     restart: always
     environment:
@@ -86,7 +112,7 @@ services:
       - ibex_db
       - kafka
     working_dir: /app/ingestor
-    command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -jar upload-logs.war --headless --contextPath /logs
+    command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -Dwicket.configuration=deployment -jar ibex-upload-logs.war --headless --contextPath /logs
 
   translator:
     image: docker-local.artifactory.internetbrands.com/udbf_translator:staging
@@ -164,6 +190,14 @@ services:
       DB_MAX_WAIT_MILLIS: 5000
       LOG_DIR: /mnt/log
       CONFIG_DIR: /mnt/config
+    - LOGDB_URL=jdbc:postgresql://ibex_db:5432/ibex_logs?currentSchema=ibex_logs
+    - LOGDB_USERNAME=postgres
+    - LOGDB_PASSWORD=
+    - SALESFORCE_LOGIN_URL=https://test.salesforce.com/services/oauth2/token
+    - SALESFORCE_USER=stg-d3@demandforce.com.dfull2
+    - SALESFORCE_PASSWORD=DemandforceD3!
+    - SALESFORCE_CLIENT_SECRET=DD49F834952CC82B2829DC88B1528327C4460F2FECC7145566F570B0FF6D4C1E
+    - SALESFORCE_CLIENT_ID=3MVG92DxHaawSd0luAabE5ir8xmMArAq9eqxmBsP9Q_63MvXOfodlhaMjQbPpbFQL0YmzcJMFwcG4brvlDWQf
     depends_on:
       - ibex_db
     volumes:
