@@ -142,11 +142,14 @@ services:
       - FULL_THREAD_POOL_SIZE=1
       - DELTA_THREAD_POOL_SIZE=1
       - OVERSIZE_DELTA_THREAD_POOL_SIZE=1
+      - DF_EXTRACTOR_PROPERTIES_URL=http://stg-df-dkr1.internetbrands.com:9001/business/dflinkProperties/includeParentContact
+      - DF_EXTRACTOR_PROPERTIES_AUTH_TOKEN=669a0d1a-fe78-11eb-9a03-0242ac130003
+      - DF_EXTRACTOR_PROPERTIES_REFRESH_PERIOD_SECONDS=60
     volumes:
-      - /var/shared/ingestor/storage/sesame/common:/usr/local/ingestor/common
-      - /var/shared/ingestor/storage/translated:/tmp/translator
-      - /var/shared/ingestor/logs/translator:/usr/local/ingestor/log
-      - ./settings/translator:/mnt/config
+      - /var/shared/ingestor/ibex-lighthouse:/usr/local/ingestor/d3/LIGHTHOUSE 
+      - /var/shared/ingestor/storage/translated:/usr/local/ingestor
+      - /var/shared/ingestor/logs/translator:/var/log
+      - ./settings/translator:/var/config
     depends_on:
       - kafka
       - zookeeper
