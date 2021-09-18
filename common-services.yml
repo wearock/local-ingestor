@@ -94,7 +94,7 @@ services:
       - kafka
       - zookeeper
       - schema_registry
-    command: java -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -cp .:/app/bin/*:/app/bin/lib/* com.sesamecom.upload.MainUploadProcessor
+    command: java -Xms1g -Xmx2g -XX:+UseG1GC -DsesameConfigurationFile=resources/sesame.properties -Dlogback.configurationFile=resources/logback.xml -cp .:/app/bin/*:/app/bin/lib/* com.sesamecom.upload.MainUploadProcessor
 
   supporttool:
     image: docker-local.artifactory.internetbrands.com/ibex_upload_logs:staging
@@ -106,6 +106,7 @@ services:
       - ./settings/logs:/app/ingestor/resources
       - /var/shared/ingestor/storage/sesame:/usr/local/ingestor
       - /var/shared/ingestor/logs:/var/log/ingestor
+      - /var/shared/ibex-lighthouse:/usr/local/ingestor/d3/LIGHTHOUSE
     depends_on:
       - authnode
       - translator
@@ -119,28 +120,28 @@ services:
     container_name: translator
     restart: always
     environment:
-      DATABASE_DRIVER: "org.postgresql.Driver"
-      DATABASE_URL: jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex&user=postgres
-      LOG_DATABASE_URL: jdbc:postgresql://ibex_db:5432/ibex_logs?currentSchema=ibex_logs&user=postgres
-      DEST_URL: http://stg-df-dkr1.internetbrands.com:9001/upload/1.0/xml.jsp
-      KAFKA_SERVERS: kafka:9092
-      KAFKA_SCHEMA_REGISTRY_SERVER: http://schema_registry:8081
-      TRANSLATE_TOPIC: ibex_upload_processed_avro
-      IBEX_FILE_TRANSLATED_TOPIC: ibex_file_translated_avro
-      TRANSLATE_GROUP: translator_upload_processed
-      GO_BACK_MINS: 60
-      MAX_TASKS_COUNT: 8
-      CORE_JAVA_SETTINGS: 
-      KAFKA_AUTO_COMMIT_INTERVAL_MS: 60000
-      KAFKA_MAX_POLL_INTERVAL_MS: 1800000
-      TMP_OUTPUT_DIR: /tmp/translator/
-      ENABLE_RUNNING_CLIENT_QUEUE: "false"
-      OPTION_TODAY: 
-      PMS_VENDOR_MAPPING_FILE: /mnt/config/pmsVendorMapping.json
-      DELTA_OVERSIZE_THRESHOLD_MB: 2
-      FULL_THREAD_POOL_SIZE: 1
-      DELTA_THREAD_POOL_SIZE: 1
-      OVERSIZE_DELTA_THREAD_POOL_SIZE: 1
+      - DATABASE_DRIVER=org.postgresql.Driver
+      - DATABASE_URL=jdbc:postgresql://ibex_db:5432/ibex?currentSchema=ibex&user=postgres
+      - LOG_DATABASE_URL=jdbc:postgresql://ibex_db:5432/ibex_logs?currentSchema=ibex_logs&user=postgres
+      - DEST_URL=http://stg-df-dkr1.internetbrands.com:9001/upload/1.0/xml.jsp
+      - KAFKA_SERVERS=kafka:9092
+      - KAFKA_SCHEMA_REGISTRY_SERVER=http://schema_registry:8081
+      - TRANSLATE_TOPIC=ibex_upload_processed_avro
+      - IBEX_FILE_TRANSLATED_TOPIC=ibex_file_translated_avro
+      - TRANSLATE_GROUP=translator_upload_processed
+      - GO_BACK_MINS=60
+      - MAX_TASKS_COUNT=8
+      - CORE_JAVA_SETTINGS=-XX:+UseG1GC -Xmx3G
+      - KAFKA_AUTO_COMMIT_INTERVAL_MS=60000
+      - KAFKA_MAX_POLL_INTERVAL_MS=1800000
+      - TMP_OUTPUT_DIR=/tmp/translator/
+      - ENABLE_RUNNING_CLIENT_QUEUE=false
+      - OPTION_TODAY= 
+      - PMS_VENDOR_MAPPING_FILE=/var/config/pmsVendorMapping.json
+      - DELTA_OVERSIZE_THRESHOLD_MB=2
+      - FULL_THREAD_POOL_SIZE=1
+      - DELTA_THREAD_POOL_SIZE=1
+      - OVERSIZE_DELTA_THREAD_POOL_SIZE=1
     volumes:
       - /var/shared/ingestor/storage/sesame/common:/usr/local/ingestor/common
       - /var/shared/ingestor/storage/translated:/tmp/translator
